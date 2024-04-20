@@ -74,14 +74,21 @@ export const usePlaylistStore = defineStore("playlist", {
       }
     },
 
-    removeSongFromPlaylist(songId) {
+    async removeSongFromPlaylist(playlistId, songId) {
       try {
-        this.loading = true;
+
+        const data = await $fetch(`http://localhost:5000/playlist/${playlistId}/${songId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+      })
 
         const indexToRemove = this.playlistSongs.findIndex(song => song.id === songId);
         if (indexToRemove !== -1) {
           this.playlistSongs.splice(indexToRemove, 1);
         }
+
+        return data
+
       } catch (error) {
         console.error('Error removing song from playlist:', error);
         // Handle error if needed

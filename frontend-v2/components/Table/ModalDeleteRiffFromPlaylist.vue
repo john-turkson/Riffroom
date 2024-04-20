@@ -18,33 +18,19 @@ const setSelectedID = () => {
 }
 
 const onSubmit = async () => {
-    
-    console.log(audioStore.audioEditId);
     modalVisible.value = false;
-
-    try {
-        const data = await $fetch(`http://localhost:5000/playlist/${route.params.id}/${audioStore.audioEditId}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-      })
-       
-        playlistStore.removeSongFromPlaylist(audioStore.audioEditId);
-        return data.value;
-        
-
-      } catch (error) {
-        console.error("Error: ", error);
-      }
+    playlistStore.removeSongFromPlaylist(route.params.id, audioStore.audioEditId);
 }
 
 </script>
 
 <template>
     <!-- The button to open modal -->
-    <label @click="setSelectedID()" for="delete_modal" class="mr-2 btn text-center btn-error btn-xs font-bold">Remove</label>
+    <label @click="setSelectedID()" for="delete_modal"
+        class="mr-2 btn text-center btn-error btn-xs font-bold">Remove</label>
 
     <!-- Put this part before </body> tag -->
-    <input type="checkbox" id="delete_modal" class="modal-toggle" v-if="modalVisible"/>
+    <input type="checkbox" id="delete_modal" class="modal-toggle" v-if="modalVisible" />
     <div class="modal" role="dialog">
         <div class="modal-box">
             <form method="dialog">
@@ -61,7 +47,8 @@ const onSubmit = async () => {
                         stroke-linejoin="round" stroke-linecap="round"></path>
                 </svg>
                 <div>
-                    <p class="p-4 text-base font-semibold">Are you sure you want to remove this Riff from the playlist?</p>
+                    <p class="p-4 text-base font-semibold">Are you sure you want to remove this Riff from the playlist?
+                    </p>
                     <button @click="onSubmit" class="btn btn-neutral w-full hover:btn-error">Remove Riff</button>
                 </div>
             </div>
