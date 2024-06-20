@@ -16,7 +16,7 @@ playlistStore.fetchPlaylists();
 
         <template v-if="audioStore.selectedAudio.id != Number">
             <div>
-                <div class="overflow-x-auto mx-64">
+                <div class="overflow-x-auto mx-64 mb-40">
                     <table class="table">
                         <!-- head -->
                         <thead>
@@ -31,8 +31,8 @@ playlistStore.fetchPlaylists();
                         <tbody>
                             <!-- row 1 -->
                             <TableRiffsRow v-for="(riff, index) in audioStore.usersUploads" :key="index"
-                                :audioNum="index + 1" :audio-id="riff.id" :audio-string="getBase64Audio(riff.mp3_file)"
-                                :image-src="getBase64Image(riff.image)" :title="riff.title" :artist="riff.artist" />
+                                :audioNum="index + 1" :audio-id="riff.id" :audio-string="riff.audio"
+                                :image-src="riff.image" :title="riff.title" :artist="riff.artist" />
                         </tbody>
                         <!-- foot -->
                         <tfoot>
@@ -66,8 +66,8 @@ playlistStore.fetchPlaylists();
                         <tbody>
                             <!-- row 1 -->
                             <TableRiffsRow v-for="(riff, index) in audioStore.usersUploads" :key="index"
-                                :audioNum="index + 1" :audio-id="riff.id" :audio-string="getBase64Audio(riff.mp3_file)"
-                                :image-src="getBase64Image(riff.image)" :title="riff.title" :artist="riff.artist" />
+                                :audioNum="index + 1" :audio-id="riff.id" :audio-string="riff.audio"
+                                :image-src="riff.image" :title="riff.title" :artist="riff.artist" />
                         </tbody>
                         <!-- foot -->
                         <tfoot>

@@ -1,5 +1,12 @@
 <script setup>
 
+const myDialog  = ref(null)
+
+
+const  closeDialogEvent = () => {
+      myDialog.value.close();
+    }
+
 </script>
 
 <template>
@@ -7,7 +14,7 @@
         <!-- Open the modal using ID.showModal() method -->
         <button class="btn btn-neutral text-white font-semibold" onclick="register_modal.showModal()">Upload a
             Riff</button>
-        <dialog id="register_modal" class="modal">
+        <dialog ref="myDialog" id="register_modal" class="modal">
             <div class="modal-box">
                 <form method="dialog">
                     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -16,7 +23,7 @@
                     <h3 class="text-left font-bold text-xl">Upload a Riff</h3>
                 </div>
                 <div class="flex flex-col items-center justify-center">
-                    <RiffsForm class="p-4" />
+                    <RiffsForm class="p-4" @closeDialog="closeDialogEvent" />
                 </div>
             </div>
         </dialog>

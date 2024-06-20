@@ -6,9 +6,6 @@ const props = defineProps({
     userPlaylists: Array,
 })
 
-const getBase64Image = (base64String) => {
-    return `data:image/jpeg;base64,${base64String}`;
-};
 
 </script>
 
@@ -34,7 +31,7 @@ const getBase64Image = (base64String) => {
 
                     <UIPlaylistCard v-else class="mr-16" v-if="userPlaylists"
                         v-for="(playlist, index) in userPlaylists.slice(0, 6)" :key="index" :name="playlist.name"
-                        :image-src="getBase64Image(playlist.image)" :playlistId="playlist.id" />
+                        :image-src="playlist.image" :playlistId="playlist.id" />
                 </div>
             </template>
 
@@ -48,7 +45,7 @@ const getBase64Image = (base64String) => {
                     </div>
 
                     <UIPlaylistCard v-else class="mr-16" v-if="userPlaylists" v-for="(playlist, index) in userPlaylists"
-                        :key="index" :name="playlist.name" :image-src="getBase64Image(playlist.image)"
+                        :key="index" :name="playlist.name" :image-src="playlist.image"
                         :playlistId="playlist.id" />
                 </div>
             </template>

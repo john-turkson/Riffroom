@@ -31,7 +31,7 @@ playlistStore.fetchPlaylists();
                                 <!-- row 1 -->
                                 <TablePlaylistsRow v-for="(playlist, index) in playlistStore.userPlaylists" :key="index"
                                     :playlist-num="index + 1" :playlist-id="playlist.id"
-                                    :image-src="getBase64Image(playlist.image)" :name="playlist.name" />
+                                    :image-src="playlist.image" :name="playlist.name" />
                             </tbody>
                             <!-- foot -->
                             <tfoot>
@@ -67,7 +67,7 @@ playlistStore.fetchPlaylists();
                                 <!-- row 1 -->
                                 <TablePlaylistsRow v-for="(playlist, index) in playlistStore.userPlaylists" :key="index"
                                     :playlist-num="index + 1" :playlist-id="playlist.id"
-                                    :image-src="getBase64Image(playlist.image)" :name="playlist.name" />
+                                    :image-src="playlist.image" :name="playlist.name" />
                             </tbody>
                             <!-- foot -->
                             <tfoot>

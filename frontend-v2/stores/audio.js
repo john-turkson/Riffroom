@@ -13,6 +13,8 @@ export const useAudioStore = defineStore("audio", {
       volume: 100,
     },
     isPlaying: false,
+    isMuted: false,
+    previousVolume: Number,
     toBeDeleted: false,
     audioEditId: Number,
   }),
@@ -22,13 +24,15 @@ export const useAudioStore = defineStore("audio", {
       const loggedInUserInfo = JSON.parse(localStorage.getItem("userData"));
 
       try {
-        const { data, pending, refresh } = await useFetch(`http://localhost:5000/user/${loggedInUserInfo.user_id}/music`, {
-          server: false,
-        });
+        const { data, pending, refresh } = await useFetch(
+          `http://localhost:5000/user/${loggedInUserInfo.user_id}/music`,
+          {
+            server: false,
+          }
+        );
 
-        this.usersUploads = data.value.music;
         this.loading = pending.value;
-
+        this.usersUploads = data.value.music;
       } catch (error) {
         console.error("Error: ", error);
         this.loading = false;
@@ -45,10 +49,8 @@ export const useAudioStore = defineStore("audio", {
           this.selectedAudio.artist = this.usersUploads[i].artist;
           this.selectedAudio.title = this.usersUploads[i].title;
           this.selectedAudio.id = this.usersUploads[i].id;
-          this.selectedAudio.image = getBase64Image(this.usersUploads[i].image);
-          this.selectedAudio.audioFile = new Audio(
-            getBase64Audio(this.usersUploads[i].mp3_file)
-          );
+          this.selectedAudio.image = this.usersUploads[i].image;
+          this.selectedAudio.audioFile = new Audio(this.usersUploads[i].audio);
 
           this.selectedAudio.audioFile.addEventListener(
             "loadedmetadata",
@@ -58,18 +60,36 @@ export const useAudioStore = defineStore("audio", {
             }
           );
 
-         if (this.isPlaying) {
-           this.selectedAudio.audioFile.addEventListener("timeupdate", () => {
-             this.selectedAudio.currentTime =
-               this.selectedAudio.audioFile.currentTime;
-           });
-         }
+          if (this.isPlaying) {
+            this.selectedAudio.audioFile.addEventListener("timeupdate", () => {
+              this.selectedAudio.currentTime =
+                this.selectedAudio.audioFile.currentTime;
+            });
+          }
 
-          
           break;
         }
       }
       return null; // If no object with the provided ID is found
+    },
+
+    async addAudio(formData) {
+      try {
+        const { data } = await useFetch(musicRoute, {
+          method: "POST",
+          body: formData,
+        });
+
+        this.loading = true;
+
+        if (data.value) {
+          this.fetchUploads();
+          console.log(data.value);
+          // refreshNuxtData(musicStore.usersUploads);
+        }
+      } catch (error) {
+        console.error("Error: ", error);
+      }
     },
 
     nextSong(songID) {
@@ -116,6 +136,19 @@ export const useAudioStore = defineStore("audio", {
       this.selectedAudio.audioFile.volume = this.selectedAudio.volume / 100;
     },
 
+    muteVolume() {
+      if (!this.isMuted) {
+        this.isMuted = true;
+        this.previousVolume = this.selectedAudio.volume;
+        this.selectedAudio.volume = 0;
+        this.updateVolume();
+      } else {
+        this.isMuted = false;
+        this.selectedAudio.volume = this.previousVolume;
+        this.updateVolume();
+      }
+    },
+
     updateCurrentTime() {
       this.selectedAudio.audioFile.currentTime = this.selectedAudio.currentTime;
     },
@@ -130,7 +163,7 @@ export const useAudioStore = defineStore("audio", {
       this.stopAudio();
       this.isPlaying = true;
       this.searchForSelectedAudio(songID);
-      this.updateVolume()
+      this.updateVolume();
       this.selectedAudio.audioFile.play();
     },
 

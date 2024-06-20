@@ -1,9 +1,9 @@
 from flask import jsonify, request, session
 from .models import db, User, Playlist, Music, association_table
+from .file_upload import FileUploads
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import jwt
-import base64
 import os
 
 load_dotenv()
@@ -33,7 +33,10 @@ class UserAuth:
             hashed_password = User.generate_hash(password)
 
             # Add new User
+            FileUploads.create_user_folder(username)
+            
             new_user = User(username=username, password=hashed_password)
+            
             db.session.add(new_user)
             db.session.commit()
 
@@ -119,7 +122,7 @@ class MusicControls:
     def addRiff(data, files):
         try:
             print(files['image'])
-            print(files['mp3_file'])
+            print(files['audio'])
             user_id = data.get("user_id")
             user = User.query.filter_by(id=user_id).first()
 
@@ -129,27 +132,32 @@ class MusicControls:
             title = data.get("title")
             artist = data.get("artist")
 
-            try:
-                image_file = files['image'].read() if 'image' in files else None
-            except Exception as e:
-            # Handle file reading error (log or return specific error message)
-                return jsonify({"message": f"Error reading image file: {str(e)}"}), 400
+            # try:
+            #     image_file = files['image'].read() if 'image' in files else None
+            # except Exception as e:
+            # # Handle file reading error (log or return specific error message)
+            #     return jsonify({"message": f"Error reading image file: {str(e)}"}), 400
             
-            try:
-                mp3_file = files['mp3_file'].read() if 'mp3_file' in files else None
-            except Exception as e:
-            # Handle file reading error (log or return specific error message)
-                return jsonify({"message": f"Error reading mp3 file: {str(e)}"}), 400
+            # try:
+            #     audio_file = files['mp3_file'].read() if 'mp3_file' in files else None
+            # except Exception as e:
+            # # Handle file reading error (log or return specific error message)
+            #     return jsonify({"message": f"Error reading mp3 file: {str(e)}"}), 400
 
            
             if not title or not artist:
                 return jsonify({"message": "Title and artist are required fields"}), 400
 
+            image_file = FileUploads.upload_image(files['image'], user.username)
+            print(image_file.file_id, image_file.url)
+            audio_file = FileUploads.upload_audio(files['audio'], user.username)
+            print(audio_file.file_id, audio_file.url)
+
             new_music = Music(
                 title=title,
                 artist=artist,
-                image=image_file,
-                mp3_file=mp3_file,
+                image_url=image_file.url,
+                mp3_url=audio_file.url,
                 user_id=user.id,
                 like=False,
             )
@@ -169,18 +177,16 @@ class PlaylistControls:
         name = data.get('name')
         user_id = data.get("user_id")
         
-        try:
-            image_file = files['image'].read() if 'image' in files else None
-        except Exception as e:
-            # Handle file reading error (log or return specific error message)
-            return jsonify({"message": f"Error reading image file: {str(e)}"}), 400
+        user = User.query.filter_by(id=user_id).first()
+        if not user:
+            return jsonify({"message": "User not found"}), 404
         
-        
+        image_file = FileUploads.upload_image(files['image'], user.username)
         
         new_playlist = Playlist(
             name=name, 
             user_id=user_id, 
-            image=image_file
+            image_url=image_file.url,
         )
         db.session.add(new_playlist)
         db.session.commit()
@@ -201,7 +207,7 @@ class PlaylistControls:
             foundPlaylist = {
                 'id': user_playlist.id,
                 'name': user_playlist.name,
-                'image': base64.b64encode(user_playlist.image).decode('utf-8') if user_playlist.image else None
+                'image': user_playlist.image_url,
             }
 
             return jsonify({'playlist': foundPlaylist}), 200

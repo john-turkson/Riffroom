@@ -1,6 +1,7 @@
 <script setup>
 import Form from '../Login/Form.vue';
 
+const emit = defineEmits(['closeDialog']);
 
 const { $locally } = useNuxtApp();
 const loggedInUserInfo = JSON.parse($locally.getItem('userData'));
@@ -24,23 +25,10 @@ const onSubmit = handleSubmit(async (values, actions) => {
     riffData.append('title', values.title);
     riffData.append('artist', values.artist);
     riffData.append('image', values.thumbnail);
-    riffData.append('mp3_file', values.songfile);
+    riffData.append('audio', values.songfile);
 
-    try {
-        const { data } = await useFetch(musicRoute, {
-            method: 'POST',
-            body: riffData,
-        })
-
-        if (data.value) {
-            console.log(data.value);
-            refreshNuxtData(musicStore.usersUploads);
-        }
-    } catch (error) {
-        console.error('Error: ', error);
-    }
-
-    location.reload();
+    musicStore.addAudio(riffData);
+    emit('closeDialog');
 
 });
 
@@ -48,7 +36,7 @@ const onSubmit = handleSubmit(async (values, actions) => {
 </script>
 
 <template>
-    <form @submit="onSubmit">
+    <form method="dialog" @submit="onSubmit">
         <div class="join join-vertical">
 
             <!-- Title Field -->

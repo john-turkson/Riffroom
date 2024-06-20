@@ -1,7 +1,6 @@
 from flask import request, jsonify, Blueprint
 from .models import db, User, Playlist, Music
 from .controllers import UserAuth, MusicControls, PlaylistControls
-import base64
 
 # App Routes Decorator
 app_routes = Blueprint('app_routes', __name__)
@@ -74,38 +73,11 @@ def get_user_music(user_id):
             'id':music.id,
             'title': music.title,
             'artist': music.artist,
-            'image': base64.b64encode(music.image).decode('utf-8') if music.image else None,
-            'mp3_file': base64.b64encode(music.mp3_file).decode('utf-8') if music.mp3_file else None,
+            'image': music.image_url,
+            'audio': music.mp3_url,
             'like':music.like
         }
         music_list.append(music_data)
-
-    return jsonify({'music': music_list}), 200
-
-@app_routes.route('/user/<int:user_id>/favorites', methods=['GET'])
-def get_user_music_favorites(user_id):
-
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-
-    user_music = Music.query.filter_by(user_id=user_id).all()
-    if not user_music:
-        return jsonify({'message': 'No music found for this user'}), 404
-    print(user_music)
-    music_list = []
-    for music in user_music:
-        if music.like:
-            music_data = {
-                'id':music.id,
-                'title': music.title,
-                'artist': music.artist,
-                'image': base64.b64encode(music.image).decode('utf-8') if music.image else None,
-                'mp3_file': base64.b64encode(music.mp3_file).decode('utf-8') if music.mp3_file else None,
-                'like':music.like
-            }
-
-            music_list.append(music_data)
 
     return jsonify({'music': music_list}), 200
 
@@ -125,7 +97,7 @@ def get_user_playlist(user_id):
         playlist_data = {
             'id':playlist.id,
             'name': playlist.name,
-            'image': base64.b64encode(playlist.image).decode('utf-8') if playlist.image else None,
+            'image': playlist.image_url,
         }
         playlists.append(playlist_data)
 
@@ -192,8 +164,8 @@ def get_music_by_playlist(playlist_id):
         'id':track.id,
         'title': track.title,
         'artist': track.artist,
-        'image': base64.b64encode(track.image).decode('utf-8') if track.image else None,
-        'mp3_file': base64.b64encode(track.mp3_file).decode('utf-8') if track.mp3_file else None,
+        'image': track.image_url,
+        'mp3_file': track.mp3_url,
         'like':track.like
         # Add more attributes as needed
     } for track in music]

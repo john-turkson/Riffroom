@@ -7,6 +7,12 @@ const props = defineProps({
 const { selectedAudio, isPlaying } = storeToRefs(useAudioStore())
 const musicStore = useAudioStore();
 
+const muteVolume = () => {
+    musicStore.muteVolume();
+    selectedAudio.volume = 0;
+
+}
+
 // const audio = new Audio();
 
 </script>
@@ -17,7 +23,7 @@ const musicStore = useAudioStore();
 
             <div class="navbar-start">
                 <div class="flex text-white">
-                    <img :src="selectedAudio.image" class="justify-start h-24 w-24 m-4" />
+                    <img :src="selectedAudio.image" class="justify-start h-24 w-24 m-4 rounded-md" />
                     <div class="flex flex-col mt-4">
                         <h4 class="text-lg font-semibold">{{ selectedAudio.title }}</h4>
                         <p class="text-sm font-light">{{ selectedAudio.artist }}</p>
@@ -55,7 +61,9 @@ const musicStore = useAudioStore();
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center w-96">
 
-                                    <span class="countdown text-white text-sm font-medium">{{formatTime(selectedAudio.currentTime) }}</span>
+                                    <span
+                                        class="countdown text-white text-sm font-medium">{{formatTime(selectedAudio.currentTime)
+                                        }}</span>
 
                                     <div class="relative flex-1 mx-4">
 
@@ -70,8 +78,9 @@ const musicStore = useAudioStore();
                                             class="w-full h-6 opacity-0 cursor-pointer">
 
                                     </div>
-                                    
-                                    <span class="duration text-white text-sm font-medium">{{ formatTime(selectedAudio.duration) }}</span>
+
+                                    <span class="duration text-white text-sm font-medium">{{
+                                        formatTime(selectedAudio.duration) }}</span>
 
                                 </div>
                             </div>
@@ -84,6 +93,14 @@ const musicStore = useAudioStore();
             </div>
 
             <div class="navbar-end">
+                <button v-if="!musicStore.isMuted" @click="musicStore.muteVolume()" class="mx-2 mb-1">
+                    <Icon size="1.75rem" name="ic:outline-volume-up"
+                        class="text-white hover:text-secondary hover:transform hover:scale-105 transition duration-300" />
+                </button>
+                <button v-else  @click="musicStore.muteVolume()" class="mx-2 mb-1">
+                    <Icon size="1.75rem" name="ic:outline-volume-off"
+                        class="text-white hover:text-secondary hover:transform hover:scale-105 transition duration-300" />
+                </button>
                 <div class="w-48 pr-8">
                     <input type="range" min="0" max="100" v-model="selectedAudio.volume"
                         @input="musicStore.updateVolume()"
